@@ -6,6 +6,7 @@
     "dev": "bun run --bun next dev",
     "build": "bun run --bun next build",
     "start": "next start",
+    "test": "playwright test",
     "lint": "eslint",
     "format": "oxfmt"
   },
