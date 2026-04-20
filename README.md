@@ -22,7 +22,8 @@ A minimal, fast note-taking app with rich text editing and public sharing. Built
 | Auth       | better-auth (email/password)      |
 | Editor     | TipTap (ProseMirror JSON)         |
 | Validation | Zod                               |
-| Testing    | Playwright (E2E)                  |
+| Unit Tests | Vitest                            |
+| E2E Tests  | Playwright                        |
 | Linting    | ESLint 9                          |
 | Formatting | oxfmt                             |
 
@@ -54,6 +55,14 @@ A minimal, fast note-taking app with rich text editing and public sharing. Built
 /tests
   app.test.ts          # Playwright E2E test suite
   screenshots/         # Auto-captured test screenshots
+  /unit
+    utils.test.ts      # hasText, parseNoteContent, sanitizeHref
+    notes.test.ts      # DB query helpers (lib/notes.ts)
+    actions.test.ts    # Server Actions (auth guards, validation, redirects)
+    middleware.test.ts # Route protection logic
+    content.test.ts    # Zod schema, content parsing, href sanitization
+  /__mocks__
+    bun-sqlite.ts      # Stub for bun:sqlite in Node/vitest context
 ```
 
 ### Key decisions
@@ -128,28 +137,55 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Available Scripts
 
-| Command          | Description                       |
-| ---------------- | --------------------------------- |
-| `bun run dev`    | Start dev server with Bun runtime |
-| `bun run build`  | Production build                  |
-| `bun run start`  | Start production server           |
-| `bun run test`   | Run Playwright E2E tests          |
-| `bun run lint`   | Run ESLint                        |
-| `bun run format` | Format code with oxfmt            |
+| Command              | Description                       |
+| -------------------- | --------------------------------- |
+| `bun run dev`        | Start dev server with Bun runtime |
+| `bun run build`      | Production build                  |
+| `bun run start`      | Start production server           |
+| `bun run test`       | Run Vitest unit tests             |
+| `bun run test:watch` | Run Vitest in watch mode          |
+| `bun run test:e2e`   | Run Playwright E2E tests          |
+| `bun run lint`       | Run ESLint                        |
+| `bun run format`     | Format code with oxfmt            |
 
-## Running Tests
+## Testing
 
-Tests use [Playwright](https://playwright.dev) and require the dev server to be running.
+The project has two separate test suites.
+
+### Unit Tests (Vitest)
+
+Fast, isolated tests with no external dependencies. Uses mocks for the database, auth, and Next.js internals.
+
+```bash
+bun run test              # run once
+bun run test:watch        # watch mode during development
+```
+
+**75 tests across 5 files:**
+
+| File                            | What's tested                                                                                |
+| ------------------------------- | -------------------------------------------------------------------------------------------- |
+| `tests/unit/utils.test.ts`      | `hasText` — null, empty, invalid JSON, nested content, whitespace                            |
+| `tests/unit/notes.test.ts`      | All DB query helpers — SQL correctness, params, edge cases for `updateNote` dynamic fields   |
+| `tests/unit/actions.test.ts`    | Server Actions — auth guards, input validation, redirect behavior                            |
+| `tests/unit/middleware.test.ts` | Route protection — auth/unauth access to `/dashboard`, `/notes/*`, `/authenticate`           |
+| `tests/unit/content.test.ts`    | Zod TipTap schema validation, `parseNoteContent` error handling, `sanitizeHref` XSS blocking |
+
+> **Note:** `bun:sqlite` is aliased to a stub in `tests/__mocks__/bun-sqlite.ts` so vitest (Node.js) can import it without crashing.
+
+### E2E Tests (Playwright)
+
+Full browser tests against a running app. Requires the dev server on port 3000.
 
 ```bash
 # Terminal 1 — start the app
 bun run dev
 
-# Terminal 2 — run tests
-bun run test
+# Terminal 2 — run E2E tests
+bun run test:e2e
 ```
 
-The test suite (`tests/app.test.ts`) covers 10 scenarios:
+**10 scenarios in `tests/app.test.ts`:**
 
 1. Unauthenticated redirect to `/authenticate`
 2. Register a new account
@@ -162,7 +198,7 @@ The test suite (`tests/app.test.ts`) covers 10 scenarios:
 9. Delete a note
 10. Unauthenticated access to `/dashboard` redirects
 
-Screenshots are saved to `tests/screenshots/` after each test run.
+Screenshots are saved to `tests/screenshots/` after each run.
 
 ## Database Schema
 
