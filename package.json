@@ -6,7 +6,9 @@
     "dev": "bun run --bun next dev",
     "build": "bun run --bun next build",
     "start": "next start",
-    "test": "playwright test",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "lint": "eslint",
     "format": "oxfmt"
   },
@@ -32,7 +34,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.4"
   },
   "ignoreScripts": [
     "sharp",

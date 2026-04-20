@@ -1,20 +1,6 @@
 'use server';
 
-function hasText(json: string | null): boolean {
-  if (!json) return false;
-  try {
-    const check = (node: unknown): boolean => {
-      if (!node || typeof node !== 'object') return false;
-      const n = node as { text?: string; content?: unknown[] };
-      if (typeof n.text === 'string' && n.text.trim().length > 0) return true;
-      return (n.content ?? []).some(check);
-    };
-    return check(JSON.parse(json));
-  } catch {
-    return false;
-  }
-}
-
+import { hasText } from '@/lib/utils';
 import { auth } from '@/lib/auth';
 import { createNote, deleteNote, setNotePrivate, setNotePublic, updateNote } from '@/lib/notes';
 import { headers } from 'next/headers';

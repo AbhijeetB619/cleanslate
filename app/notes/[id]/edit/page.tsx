@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { getNoteById } from '@/lib/notes';
 import EditNoteForm from './EditNoteForm';
+import { parseNoteContent } from '@/lib/utils';
 import { headers } from 'next/headers';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
@@ -19,7 +20,7 @@ export default async function EditNotePage({ params }: { params: Promise<{ id: s
     notFound();
   }
 
-  const initialContent = JSON.parse(note.content);
+  const initialContent = parseNoteContent(note.content);
 
   return (
     <div className='max-w-2xl mx-auto p-6'>

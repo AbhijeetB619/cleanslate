@@ -1,17 +1,6 @@
 import { Fragment, ReactNode } from 'react';
-
-type Mark = {
-  type: string;
-  attrs?: Record<string, string | null>;
-};
-
-type TipTapNode = {
-  type: string;
-  attrs?: Record<string, string | number | null>;
-  content?: TipTapNode[];
-  marks?: Mark[];
-  text?: string;
-};
+import { type TipTapNode, type Mark } from '@/lib/tiptap-schema';
+import { sanitizeHref } from '@/lib/utils';
 
 function applyMarks(text: string, marks: Mark[]): ReactNode {
   return marks.reduce<ReactNode>((node, mark) => {
@@ -31,7 +20,7 @@ function applyMarks(text: string, marks: Mark[]): ReactNode {
       case 'link':
         return (
           <a
-            href={mark.attrs?.href ?? '#'}
+            href={sanitizeHref(mark.attrs?.href)}
             className='underline text-blue-600 hover:text-blue-800'
             target='_blank'
             rel='noopener noreferrer'
@@ -130,6 +119,8 @@ function renderNode(node: TipTapNode, key: number): ReactNode {
   }
 }
 
-export default function NoteRenderer({ content }: { content: TipTapNode }) {
+import { type TipTapDoc } from '@/lib/tiptap-schema';
+
+export default function NoteRenderer({ content }: { content: TipTapDoc }) {
   return <>{renderNode(content, 0)}</>;
 }

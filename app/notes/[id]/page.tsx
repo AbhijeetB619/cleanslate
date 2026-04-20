@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { getNoteById } from '@/lib/notes';
 import NoteRenderer from '@/components/NoteRenderer';
+import { parseNoteContent } from '@/lib/utils';
 import DeleteNoteButton from '@/components/DeleteNoteButton';
 import { headers } from 'next/headers';
 import Link from 'next/link';
@@ -20,7 +21,7 @@ export default async function NoteViewPage({ params }: { params: Promise<{ id: s
     notFound();
   }
 
-  const content = JSON.parse(note.content);
+  const content = parseNoteContent(note.content);
   const baseUrl = process.env.BETTER_AUTH_URL ?? 'http://localhost:3000';
   const publicUrl =
     note.is_public === 1 && note.public_slug ? `${baseUrl}/public/${note.public_slug}` : null;

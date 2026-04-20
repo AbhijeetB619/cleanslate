@@ -1,6 +1,7 @@
 import { getPublicNote } from '@/lib/notes';
 import NoteRenderer from '@/components/NoteRenderer';
 import { notFound } from 'next/navigation';
+import { parseNoteContent } from '@/lib/utils';
 
 export default async function PublicNotePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -10,7 +11,7 @@ export default async function PublicNotePage({ params }: { params: Promise<{ slu
     notFound();
   }
 
-  const content = JSON.parse(note.content);
+  const content = parseNoteContent(note.content);
 
   return (
     <div className='max-w-2xl mx-auto p-6'>
